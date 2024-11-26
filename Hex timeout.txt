@@ -1,0 +1,1 @@
+El time out funciona con un bool global para activar o desactivar el movimiento (rollo gameOn Logiscool)
