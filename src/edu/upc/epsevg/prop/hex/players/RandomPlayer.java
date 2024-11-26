@@ -48,7 +48,7 @@ public class RandomPlayer implements IPlayer, IAuto {
               }
             }  
         }
-
+//lol
         if(freeCells==0) return null;        
         
         Random rand = new Random();
