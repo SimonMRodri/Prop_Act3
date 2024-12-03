@@ -5,6 +5,7 @@ import edu.upc.epsevg.prop.hex.players.RandomPlayer;
 import edu.upc.epsevg.prop.hex.IPlayer;
 import edu.upc.epsevg.prop.hex.IPlayer;
 import edu.upc.epsevg.prop.hex.IPlayer;
+import edu.upc.epsevg.prop.hex.players.GameDevPlayer;
 import edu.upc.epsevg.prop.hex.players.H_E_X_Player;
 
 
@@ -27,9 +28,10 @@ public class Game {
                 
                 IPlayer player1 = new H_E_X_Player(2/*GB*/);
                 
-                IPlayer player2 = new HumanPlayer("Human");
+                IPlayer player2 = new GameDevPlayer("GameDev");
+                        //HumanPlayer("Human");
                                 
-                new Board(player1 , player2, 11 /*mida*/,  10/*s*/, false);
+                new Board(player1 , player2, 4 /*mida*/,  10/*s*/, false);
              }
         });
     }
