@@ -28,7 +28,7 @@ public class Game {
                 
                 IPlayer player1 = new H_E_X_Player(2/*GB*/);
                 
-                IPlayer player2 = new GameDevPlayer("GameDev");
+                IPlayer player2 = new GameDevPlayer("GameDev", 2, false);
                         //HumanPlayer("Human");
                                 
                 new Board(player1 , player2, 4 /*mida*/,  10/*s*/, false);
