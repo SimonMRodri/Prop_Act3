@@ -22,6 +22,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
     private boolean timerOn;
     private int returnedDepth;
     private long numberOfNodesExplored;
+    private int colorOfPlayer;
     
     public GameDevPlayer(String nm, int depthMax, boolean modePlayer){
         name = nm;
@@ -72,6 +73,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
         
     @Override
     public PlayerMove move(HexGameStatus hgs) {
+        colorOfPlayer = hgs.getCurrentPlayerColor();
         timeOut = false;
         Point millorMoviment = new Point(1, 1);
         int millorValor = Integer.MIN_VALUE;
@@ -105,7 +107,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
     }
 
     private int getHeuristica(HexGameStatus t) {
-        return 1;
+         return DijkstraHeuristic.calculateHeuristic(t, colorOfPlayer);
     }
     
 }
