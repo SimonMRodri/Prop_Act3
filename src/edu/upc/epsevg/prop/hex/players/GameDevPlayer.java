@@ -29,8 +29,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
         depth = depthMax;
         timerOn = modePlayer;
     }
-    public int minimax(HexGameStatus t, int alpha, int beta, boolean maximizingPlayer, Point pos, int aDepth) {
-        int color = t.getCurrentPlayerColor();
+    public int minimax(HexGameStatus t, int alpha, int beta, boolean maximizingPlayer, int aDepth) {
         numberOfNodesExplored++;
         
         if (t.getMoves().isEmpty() || timeOut || (aDepth == depth && !timerOn)){
@@ -45,7 +44,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
                     HexGameStatus t2 = new HexGameStatus(t);
                     if (t.getPos(j, k) == 0) {
                         t2.placeStone(new Point(j, k));
-                        int eval = minimax(t2, alpha, beta, false, new Point(j, k), aDepth+1);
+                        int eval = minimax(t2, alpha, beta, false, aDepth+1);
                         maxEval = Math.max(maxEval, eval);
                         alpha = Math.max(alpha, eval);
                         if (beta <= alpha) break; // Poda alfa-beta
@@ -57,10 +56,10 @@ public class GameDevPlayer implements IPlayer, IAuto{
             int minEval = Integer.MAX_VALUE;
             for (int j = t.getSize()-1; j >= 0; j--) {
                 for (int k = t.getSize()-1; k>=0; k--){ 
-                    HexGameStatus t2 = new HexGameStatus(t);
                     if (t.getPos(j, k) == 0) {
+                        HexGameStatus t2 = new HexGameStatus(t);
                         t2.placeStone(new Point(j, k));
-                        int eval = minimax(t2, alpha, beta, true, new Point(j,k), aDepth+1);
+                        int eval = minimax(t2, alpha, beta, true, aDepth+1);
                         minEval = Math.min(minEval, eval);
                         beta = Math.min(beta, eval);
                         if (beta <= alpha) break; // Poda alfa-beta
@@ -75,17 +74,19 @@ public class GameDevPlayer implements IPlayer, IAuto{
     public PlayerMove move(HexGameStatus hgs) {
         colorOfPlayer = hgs.getCurrentPlayerColor();
         timeOut = false;
-        Point millorMoviment = new Point(1, 1);
+        Point millorMoviment = new Point(-1, -1);
         int millorValor = Integer.MIN_VALUE;
 
         for (int i = 0; i< hgs.getSize(); i++){
             for(int j = 0; j < hgs.getSize(); j++){
                 if(hgs.getPos(i, j) == 0){
                     HexGameStatus t = new HexGameStatus(hgs);
-                    int v = minimax(t, millorValor, Integer.MAX_VALUE, false, new Point(i, j), 0);
+                    Point c = new Point(i,j);
+                    t.placeStone(c);
+                    int v = minimax(t, Integer.MIN_VALUE, Integer.MAX_VALUE, false, 0);
                     if (v > millorValor){
                         millorValor = v;
-                        millorMoviment = new Point(i, j);
+                        millorMoviment = c;
                     }
                 }
             }
@@ -107,7 +108,9 @@ public class GameDevPlayer implements IPlayer, IAuto{
     }
 
     private int getHeuristica(HexGameStatus t) {
-         return DijkstraHeuristic.calculateHeuristic(t, colorOfPlayer);
+       int res = DijkstraHeuristic.calculateHeuristic(t, colorOfPlayer);
+       int notres = DijkstraHeuristic.calculateHeuristic(t, -colorOfPlayer) ; 
+       return notres - res;
     }
     
 }
