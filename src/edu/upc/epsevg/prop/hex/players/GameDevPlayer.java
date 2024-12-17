@@ -108,9 +108,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
     }
 
     private int getHeuristica(HexGameStatus t) {
-       int res = DijkstraHeuristic.calculateHeuristic(t, colorOfPlayer);
-       int notres = DijkstraHeuristic.calculateHeuristic(t, -colorOfPlayer) ; 
-       return notres - res;
+       return DijkstraHeuristic.calculateHeuristic(t, colorOfPlayer);
     }
     
 }
