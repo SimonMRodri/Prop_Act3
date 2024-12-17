@@ -26,15 +26,15 @@ public class Game {
             @Override
             public void run() {
                 
-                IPlayer player1 = new HumanPlayer("Human");
+                IPlayer player1 = new H_E_X_Player(2/*GB*/);
                 
-                IPlayer player2 = new GameDevPlayer("GameDev", 5, false);
+                IPlayer player2 = new GameDevPlayer("GameDev", 5, true);
                         //H_E_X_Player(2/*GB*/);
                         //HumanPlayer("Human");
                         //RandomPlayer("SISI");
                         
                                 
-                new Board(player1 , player2, 4 /*mida*/,  10/*s*/, false);
+                new Board(player1 , player2, 6 /*mida*/,  10/*s*/, false);
              }
         });
     }
