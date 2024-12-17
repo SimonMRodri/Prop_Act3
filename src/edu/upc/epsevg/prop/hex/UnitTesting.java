@@ -7,6 +7,7 @@ package edu.upc.epsevg.prop.hex;
 
 import edu.upc.epsevg.prop.hex.HexGameStatus;
 import edu.upc.epsevg.prop.hex.PlayerType;
+import edu.upc.epsevg.prop.hex.players.DijkstraHeuristic;
 import edu.upc.epsevg.prop.hex.players.ProfeGameStatus2;
 import edu.upc.epsevg.prop.hex.players.ProfeGameStatus3;
 import edu.upc.epsevg.prop.hex.players.ProfeGameStatus3.Result;
@@ -22,21 +23,18 @@ public class UnitTesting {
     
         
         byte[][] board = {
-        //X   0  1  2  3  4  5  6  7  8
-            { 0, 0, 0, 0,  0, 0, 0, 0, 0},                     // 0   Y
-              { 0, 0, 0, 0, 0, 0, 0, 0, 0},                    // 1
-                { 0, 0, 0, 0, 0, 0, 0, 0, 0},                  // 2
-                  { 0, 0, 0, 0, 0, 0, 0, 0, 0},                // 3
-                    { 0, 0, 0, 0,-1, 0, 0, 0, 0},              // 4  
-                      { 0, 0, 0, 0, 0, 1, 0, 0, 0},            // 5    
-                        { 0, 0, 0,-1,-1,-1, 1,-1, 0},          // 6      
-                          { 0, 0, 1, 1, 1, 1,-1, 1, 0},        // 7       
-                            { 0, 0, 0, 0, 0, 0,-1, 0, 1}       // 8    Y         
+        //X   0  1  2  3  4
+            { 0, 0, 0, 0},                      // 0   Y
+              { 0, -1, 1, 1},                    // 1
+                { 0, -1, 1, 0},                  // 2
+                  { 0, 1, 0, 0}                 // 4  
+        
         };
 
 
         HexGameStatus gs = new HexGameStatus(board, PlayerType.PLAYER1);        
-        
+        int h = DijkstraHeuristic.calculateHeuristic(gs, -1);
+        System.out.println("H="+h);
  
     }
     

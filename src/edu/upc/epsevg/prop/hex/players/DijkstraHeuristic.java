@@ -8,7 +8,7 @@ public class DijkstraHeuristic {
     
     public static int calculateHeuristic(HexGameStatus t, int colorOfPlayer) {
         int playerColor = colorOfPlayer;
-        int opponentColor = (playerColor == 1) ? -1 : 1;
+        int opponentColor = -colorOfPlayer;
 
         int playerScore = calculateShortestPath(t, playerColor);
         int opponentScore = calculateShortestPath(t, opponentColor);
