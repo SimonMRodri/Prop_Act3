@@ -42,7 +42,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
             for (int j = t.getSize()-1; j >= 0; j--) {
                 for (int k = t.getSize()-1; k>=0; k--){
                     HexGameStatus t2 = new HexGameStatus(t);
-                    if (t.getPos(j, k) == 0) {
+                    if (t2.getPos(j, k) == 0) {
                         t2.placeStone(new Point(j, k));
                         int eval = minimax(t2, alpha, beta, false, aDepth+1);
                         maxEval = Math.max(maxEval, eval);
@@ -56,8 +56,8 @@ public class GameDevPlayer implements IPlayer, IAuto{
             int minEval = Integer.MAX_VALUE;
             for (int j = t.getSize()-1; j >= 0; j--) {
                 for (int k = t.getSize()-1; k>=0; k--){ 
-                    if (t.getPos(j, k) == 0) {
-                        HexGameStatus t2 = new HexGameStatus(t);
+                    HexGameStatus t2 = new HexGameStatus(t);
+                    if (t2.getPos(j, k) == 0) {
                         t2.placeStone(new Point(j, k));
                         int eval = minimax(t2, alpha, beta, true, aDepth+1);
                         minEval = Math.min(minEval, eval);
@@ -108,6 +108,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
     }
 
     private int getHeuristica(HexGameStatus t) {
+       
        return DijkstraHeuristic.calculateHeuristic(t, colorOfPlayer);
     }
     
