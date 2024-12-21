@@ -60,4 +60,19 @@ public class ZobristHashing {
         }
         return currentHash;
     }
+    /*
+    Aquesta funcio agafa el Hash d'un tauler i li fa XOR amb oldState si no es buit 
+    obtenint el Hash de la taula amb el moviment anterior/abans de fer el moviment????
+    Sino, agafa el Hash de la taula actual li fa XOR del NewState obtenint la taula del moviment fet. 
+    Es te en compte que si cap es buit estic fent XOR del oldState i despres del NewState 
+    La major pregunta es quan la crido??
+    Quan faci el moviment i li dic a la taula el teu nou hash es igual a la funcio amb el teu hash
+    el estat abans de fer el moviment i color del jugador que ha fet el moviment???.
+    */
+    public long getAux(long currentHash, long nextMov){
+        long aux = currentHash ^ nextMov;
+        return aux; 
+        //si torno a crida aquesta funcio posant el aux com a currentHash i el nextMov igual 
+        //puc tornar a obtenir el currentHash Anterior, el tauler abans de fer el moviment.
+    }
 }

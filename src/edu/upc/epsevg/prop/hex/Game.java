@@ -25,16 +25,16 @@ public class Game {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                
+                int boardSize = 4;
                 IPlayer player1 = new RandomPlayer("SISI");
                 
-                IPlayer player2 = new GameDevPlayer("GameDev", 5, true);
+                IPlayer player2 = new GameDevPlayer("GameDev", 5, true, boardSize);
                         //H_E_X_Player(2/*GB*/);
                         //HumanPlayer("Human");
                         //RandomPlayer("SISI");
                         
                                 
-                new Board(player1 , player2, 4 /*mida*/,  10/*s*/, false);
+                new Board(player1 , player2, boardSize /*mida*/,  10/*s*/, false);
              }
         });
     }
