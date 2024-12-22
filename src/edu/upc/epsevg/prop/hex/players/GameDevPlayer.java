@@ -34,22 +34,20 @@ public class GameDevPlayer implements IPlayer, IAuto{
         name = nm;
         depth = depthMax;
         timerOn = modePlayer;
-        zh = new ZobristHashing(BS, 3); // aquesta inicialitzacio esta bé
-        //ZobristTable es fa una i punt.
+        zh = new ZobristHashing(BS, 3); 
     }
+    //ZobristTable es fa una i punt.
     
     public int minimax(MyStatus t, int alpha, int beta, boolean maximizingPlayer, int aDepth) {
         numberOfNodesExplored++;
        
         if (t.getMoves().isEmpty() || timeOut || (aDepth == depth && !timerOn)){
             returnedDepth = aDepth;
-            return getHeuristica(t);
+            int h = getHeuristica(t);
+            t.setHeur(h);
+            return h;
         } 
-        /*
-        int h = getHeur(t);
-        t.setHeur(h);
-        HTable.put(t.currentHash, t);
-        */
+        
         
         
         if (maximizingPlayer) { // Si és el torn del jugador maximitzador
@@ -64,13 +62,13 @@ public class GameDevPlayer implements IPlayer, IAuto{
                         // Si segueix sense funcionar placeStone tornar a posar el 
                         // MyStatus t2 = new MyStatus(t); dins del bucle.
                         // O posar un check perque no posi fora dels limits.
-            Point bestMov = new Point(0,0);
+            Point bestMov = null;
             for (int j = t.getSize()-1; j >= 0; j--) {
                 for (int k = t.getSize()-1; k>=0; k--){
                     MyStatus t2 = new MyStatus(t);
                     if (t2.getPos(j, k) == 0) {
                         t2.placeStone(new Point(j, k));
-                        long auxHash = zh.updateHash(t2.currentHash, j, k, 0+1, t2.getCurrentPlayerColor()+1);//o getPos(j,k)+1 pero crec que amb color es mes rapid.
+                        long auxHash = zh.updateHash(t2.currentHash, j, k, 1, t2.getPos(j, k)+1);//o getPos(j,k)+1 pero crec que amb color es mes rapid.
                         if (HTable.containsKey(auxHash)){
                             return HTable.get(auxHash).getHeur();
                             //si ja ha vist el tauler retrona la seva heuristica que es de les millors
@@ -93,11 +91,17 @@ public class GameDevPlayer implements IPlayer, IAuto{
                     }
                 }
             }
-            
-            t.setHeur(maxEval);
-            t.placeStone(bestMov);
-            t.currentHash = zh.updateHash(t.currentHash, bestMov.x, bestMov.y, t.getPos(bestMov)+1, t.getCurrentPlayerColor()+1);
-            HTable.put(t.currentHash, t);
+            if (bestMov != null){
+                MyStatus t3 = new MyStatus(t);
+                t3.setHeur(maxEval);
+                t3.placeStone(bestMov);
+                t3.currentHash = zh.updateHash(t3.currentHash, bestMov.x, bestMov.y, t3.getPos(bestMov)+1, t3.getCurrentPlayerColor()+1); /////?????????
+                HTable.put(t3.currentHash, t3);
+            }
+            if (maxEval >= -10 && maxEval <= 10){
+            System.out.println(bestMov);
+            System.out.println(maxEval);
+            }
             
             return maxEval;
         } else { // Si és el torn del jugador minimitzador
@@ -111,13 +115,13 @@ public class GameDevPlayer implements IPlayer, IAuto{
             // Al acabar el bucle la esborrem.
             int newState = t2.getCurrentPlayerColor()+1;
             */
-            Point bestMov = new Point(0,0);
+            Point bestMov = null;
             for (int j = t.getSize()-1; j >= 0; j--) {
                 for (int k = t.getSize()-1; k>=0; k--){
                     MyStatus t2 = new MyStatus(t);
                     if (t2.getPos(j, k) == 0) {
                         t2.placeStone(new Point(j, k)); //potser no fa falta el place stone????????? bueno si que fara falta perque no tenim res guardat
-                        long auxHash = zh.updateHash(t2.currentHash, j, k, 0+1, t2.getCurrentPlayerColor()+1);
+                        long auxHash = zh.updateHash(t2.currentHash, j, k, 1, t2.getPos(j,k)+1);
                         if (HTable.containsKey(auxHash)){
                             return HTable.get(auxHash).getHeur();
                         }
@@ -136,22 +140,26 @@ public class GameDevPlayer implements IPlayer, IAuto{
                     }
                 }
             }
-            /*
-            t.setHeur(minEval); 
-            t.placeStone(bestMov);
-            t.currentHash = zh.updateHash(t.currentHash, bestMov.x, bestMov.y, t.getPos(bestMov)+1, t.getCurrentPlayerColor()+1);
-            HTable.put(t.currentHash, t);
-            */
+           
+            
+            if (bestMov != null){
+                MyStatus t3 = new MyStatus(t);
+                t3.setHeur(minEval); 
+                t3.placeStone(bestMov);
+                t3.currentHash = zh.updateHash(t3.currentHash, bestMov.x, bestMov.y, t3.getPos(bestMov)+1, t3.getCurrentPlayerColor()+1);
+                HTable.put(t3.currentHash, t3);
+            }
+            
             return minEval;
         }
     }
         
     @Override
     public PlayerMove move(HexGameStatus hgs) {
+        
         colorOfPlayer = hgs.getCurrentPlayerColor();
         timeOut = false;
         int size = hgs.getSize();
-        
         
         int[][] board = new int[size][size];
         for (int x = 0; x < size; x++) {

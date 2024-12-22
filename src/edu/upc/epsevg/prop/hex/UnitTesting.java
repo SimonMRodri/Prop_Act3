@@ -43,15 +43,15 @@ public class UnitTesting {
         boards.add(new byte[][]{
         //X   0  1  2  3  4
             { 0, 0, 0, 0},                      // 0   Y
-              { 0, -1, 1, 1},                    // 1
-                { 0, -1, 1, 0},                  // 2
-                  { 0, 1, 0, 0}                 // 4  
+              { 1, 0, 0, -1},                    // 1
+                { 0, 0, 0, 0},                  // 2
+                  { 0, 0, 0, 0}                 // 4  
         
         });
         
         for (byte[][] board : boards){
             HexGameStatus gs = new HexGameStatus(board, PlayerType.PLAYER1);        
-            int h = DijkstraHeuristic.calculateHeuristic(gs, -1);
+            int h = DijkstraHeuristic.calculateHeuristic(gs, 1);
             System.out.println("H="+h);
         }
         

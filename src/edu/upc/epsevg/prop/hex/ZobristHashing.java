@@ -1,5 +1,6 @@
 package edu.upc.epsevg.prop.hex;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ZobristHashing {
     private long[][][] zobristTable; // Tabla Zobrist: [fila][columna][estado]
@@ -15,12 +16,13 @@ public class ZobristHashing {
 
     // Genera números aleatorios para cada celda y estado
     private void initializeZobristTable() {
-        Random random = new Random();
+        //Random random = new Random();
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
                 for (int k = 0; k < zobristTable[i][j].length; k++) {
-                    zobristTable[i][j][k] = random.nextLong();
+                    zobristTable[i][j][k] = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
                     //ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
+                    //random.nextLong();
                 }
             }
         }
@@ -60,6 +62,15 @@ public class ZobristHashing {
         }
         return currentHash;
     }
+    /*
+    Ara ho entenc. 
+    Si el oldState es 0 o 2, enemic o jo, fes XOR per tornar al tauler original, 
+    llavors si newState es 0 o 2, enemic o jo, fes XOR per calcular el hash del nou moviment.
+    Aquesta es una opcio de la funció.
+    Si oldState es buit no facis res, si newState no es buit calcula nou Hash.
+    Si oldState no es buit, retorna al tauler original. Si newState es buit no facis res.
+    I si oldState i newState son buits retorna el currentHash sense canvis.
+    */
     /*
     Aquesta funcio agafa el Hash d'un tauler i li fa XOR amb oldState si no es buit 
     obtenint el Hash de la taula amb el moviment anterior/abans de fer el moviment????
