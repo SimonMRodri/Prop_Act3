@@ -28,6 +28,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
     private int colorOfPlayer;
     private Hashtable<Long, MyStatus> HTable;
     private ZobristHashing zh;
+    private long bestHash;
     
     public GameDevPlayer(String nm, int depthMax, boolean modePlayer, int BS){
         this.HTable = new Hashtable<>();
@@ -62,7 +63,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
                         // Si segueix sense funcionar placeStone tornar a posar el 
                         // MyStatus t2 = new MyStatus(t); dins del bucle.
                         // O posar un check perque no posi fora dels limits.
-            Point bestMov = null;
+            Point bestMov = new Point(-1, -1);
             for (int j = t.getSize()-1; j >= 0; j--) {
                 for (int k = t.getSize()-1; k>=0; k--){
                     MyStatus t2 = new MyStatus(t);
@@ -91,18 +92,21 @@ public class GameDevPlayer implements IPlayer, IAuto{
                     }
                 }
             }
-            if (bestMov != null){
+            if (bestMov != new Point(-1, -1)){
                 MyStatus t3 = new MyStatus(t);
+                int pos = t3.getPos(bestMov)+1;
                 t3.setHeur(maxEval);
+                
                 t3.placeStone(bestMov);
-                t3.currentHash = zh.updateHash(t3.currentHash, bestMov.x, bestMov.y, t3.getPos(bestMov)+1, t3.getCurrentPlayerColor()+1); /////?????????
+                t3.currentHash = zh.updateHash(t3.currentHash, bestMov.x, bestMov.y, pos, t3.getPos(bestMov)+1); /////?????????
                 HTable.put(t3.currentHash, t3);
             }
+            /*
             if (maxEval >= -10 && maxEval <= 10){
             System.out.println(bestMov);
             System.out.println(maxEval);
             }
-            
+            */
             return maxEval;
         } else { // Si és el torn del jugador minimitzador
             int minEval = Integer.MAX_VALUE;
@@ -115,7 +119,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
             // Al acabar el bucle la esborrem.
             int newState = t2.getCurrentPlayerColor()+1;
             */
-            Point bestMov = null;
+            Point bestMov = new Point(-1, -1); 
             for (int j = t.getSize()-1; j >= 0; j--) {
                 for (int k = t.getSize()-1; k>=0; k--){
                     MyStatus t2 = new MyStatus(t);
@@ -130,10 +134,12 @@ public class GameDevPlayer implements IPlayer, IAuto{
                         }
 
                         int eval = minimax(t2, alpha, beta, true, aDepth+1);
+                        
                         if (eval<minEval){
                             minEval = eval;
                             bestMov = new Point(j,k);
                         }
+                        
                         //minEval = Math.min(minEval, eval);
                         beta = Math.min(beta, eval);
                         if (beta <= alpha) break; // Poda alfa-beta
@@ -142,11 +148,12 @@ public class GameDevPlayer implements IPlayer, IAuto{
             }
            
             
-            if (bestMov != null){
+            if (bestMov != new Point(-1, -1)){
                 MyStatus t3 = new MyStatus(t);
+                int pos = t3.getPos(bestMov)+1;
                 t3.setHeur(minEval); 
                 t3.placeStone(bestMov);
-                t3.currentHash = zh.updateHash(t3.currentHash, bestMov.x, bestMov.y, t3.getPos(bestMov)+1, t3.getCurrentPlayerColor()+1);
+                t3.currentHash = zh.updateHash(t3.currentHash, bestMov.x, bestMov.y, pos, t3.getPos(bestMov)+1);
                 HTable.put(t3.currentHash, t3);
             }
             
@@ -160,7 +167,9 @@ public class GameDevPlayer implements IPlayer, IAuto{
         colorOfPlayer = hgs.getCurrentPlayerColor();
         timeOut = false;
         int size = hgs.getSize();
-        
+
+        //if(!HTable.isEmpty()) hgs = HTable.get(bestHash);
+
         int[][] board = new int[size][size];
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
@@ -171,15 +180,15 @@ public class GameDevPlayer implements IPlayer, IAuto{
         
         Point millorMoviment = new Point(-1, -1);
         int millorValor = Integer.MIN_VALUE;
-        MyStatus ms = new MyStatus(hgs.getSize(), hgs, millorValor, currentHash);
+        
         for (int i = 0; i< hgs.getSize(); i++){
             for(int j = 0; j < hgs.getSize(); j++){
                 if(hgs.getPos(i, j) == 0){
-                    HexGameStatus t = new HexGameStatus(hgs);
                     
+                    MyStatus ms = new MyStatus(hgs.getSize(), hgs, millorValor, currentHash);
                     Point c = new Point(i,j);
-                    t.placeStone(c);
-                    ms.currentHash = zh.updateHash(currentHash, i, j, 0+1, t.getCurrentPlayerColor()+1);
+                    ms.placeStone(c);
+                    ms.currentHash = zh.updateHash(currentHash, i, j, 0+1, ms.getPos(i, j)+1);
                     
                     int v = minimax(ms, Integer.MIN_VALUE, Integer.MAX_VALUE, false, 0);
                     //MyStatus ms = new MyStatus(hgs.getSize(), hgs, millorValor, currentHash);
@@ -192,6 +201,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
                 }
             }
         }
+        
         return new PlayerMove(millorMoviment, numberOfNodesExplored, returnedDepth, SearchType.MINIMAX);
         
     }
