@@ -28,7 +28,7 @@ public class Game {
                 int boardSize = 7;
                 IPlayer player1 = new RandomPlayer("SISI");
                 
-                IPlayer player2 = new GameDevPlayer("GameDev", 4, false, boardSize);
+                IPlayer player2 = new GameDevPlayer("GameDev", 4, true, boardSize);
                         //H_E_X_Player(2/*GB*/);
                         //HumanPlayer("Human");
                         //RandomPlayer("SISI");

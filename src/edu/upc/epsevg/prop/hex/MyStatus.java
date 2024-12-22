@@ -11,7 +11,7 @@ public class MyStatus extends HexGameStatus {
     public long currentHash;
     
     public MyStatus(int sizeH, HexGameStatus hg, int he, long CH){
-       super(sizeH); //o hg | constructor que crea un estat buit a partir del size o el constructor per copia al que li pases el HGS
+       super(hg); //o hg | constructor que crea un estat buit a partir del size o el constructor per copia al que li pases el HGS
        //crec que seria super(hg);
        hgs = hg;
        heur = he;

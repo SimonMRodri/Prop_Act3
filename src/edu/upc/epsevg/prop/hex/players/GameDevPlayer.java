@@ -29,6 +29,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
     private Hashtable<Long, MyStatus> HTable;
     private ZobristHashing zh;
     private long bestHash;
+    private int[][] weightMatrix;
     
     public GameDevPlayer(String nm, int depthMax, boolean modePlayer, int BS){
         this.HTable = new Hashtable<>();
@@ -36,14 +37,28 @@ public class GameDevPlayer implements IPlayer, IAuto{
         depth = depthMax;
         timerOn = modePlayer;
         zh = new ZobristHashing(BS, 3); 
+        createWeightMatrix(BS);
     }
     //ZobristTable es fa una i punt.
+    public void createWeightMatrix(int size){
+        int[][] M = new int[size][size];
+        for (int i = 0; i< size; i++){
+            for(int j = 0; j < size; j++){
+                M[i][j] = (size/(Math.abs(i-size/2)+ Math.abs(j-size/2)+1));
+                //System.out.println(M[i][j]);
+            }
+            //System.out.println(" ");
+        }
+        weightMatrix = M;
+        
+    }
     
     public int minimax(MyStatus t, int alpha, int beta, boolean maximizingPlayer, int aDepth) {
         numberOfNodesExplored++;
        
         if (t.getMoves().isEmpty() || timeOut || (aDepth == depth && !timerOn)){
             returnedDepth = aDepth;
+            //System.out.println(aDepth);
             int h = getHeuristica(t);
             t.setHeur(h);
             return h;
@@ -81,7 +96,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
                         //OldState no sera sempre 1 ja que posem una pedra en una cella buida?
                         //MyStatus aux = HTable.get(t2.getCurrentHash(); //null
                         //HTable.put(zh.updateHash(t2.currentHash, j, k, 1, colorOfPlayer+1), colorOfPlayer+1), t2);//ni puta idea pero maybe te sentit???????
-                        int eval = minimax(t2, alpha, beta, false, aDepth+1);
+                        int eval = minimax(t2, alpha, beta, false, aDepth+1) ;
                         if (eval > maxEval){
                             maxEval = eval;
                             bestMov = new Point(j,k); 
@@ -190,7 +205,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
                     ms.placeStone(c);
                     ms.currentHash = zh.updateHash(currentHash, i, j, 0+1, ms.getPos(i, j)+1);
                     
-                    int v = minimax(ms, Integer.MIN_VALUE, Integer.MAX_VALUE, false, 0);
+                    int v = minimax(ms, Integer.MIN_VALUE, Integer.MAX_VALUE, false, 0) + weightMatrix[i][j];// 
                     //MyStatus ms = new MyStatus(hgs.getSize(), hgs, millorValor, currentHash);
                     HTable.put(ms.currentHash, ms);
                     if (v > millorValor){
@@ -201,7 +216,7 @@ public class GameDevPlayer implements IPlayer, IAuto{
                 }
             }
         }
-        
+        System.out.println(returnedDepth);
         return new PlayerMove(millorMoviment, numberOfNodesExplored, returnedDepth, SearchType.MINIMAX);
         
     }
