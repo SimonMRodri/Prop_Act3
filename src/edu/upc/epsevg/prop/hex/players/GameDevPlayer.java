@@ -41,17 +41,26 @@ public class GameDevPlayer implements IPlayer, IAuto{
         depth = depthMax;
         timerOn = modePlayer;
         zh = new ZobristHashing(BS, 3); 
-        createWeightMatrix(BS);
+        int c = this.colorOfPlayer;
+        createWeightMatrix(BS, c);
     }
     //ZobristTable es fa una i punt.
-    public void createWeightMatrix(int size){
+    public void createWeightMatrix(int size, int c){
         int[][] M = new int[size][size];
         for (int i = 0; i< size; i++){
             for(int j = 0; j < size; j++){
                 
                 M[i][j] = (size/(Math.abs(i-size/2)+ Math.abs(j-size/2)+1));
-                
                 if(i != size/2 && j == size/2) M[i][j] = 1;
+                /*
+                if (c == 1){
+                    if(i != size/2 && j == size/2) M[i][j] = 1;   
+                }
+                else{
+                    if(i != size/2 && j == size/2) M[j][i] = 1;
+                }
+                */
+                //if(i != size/2 && j == size/2) M[i][j] = 1;
                 //if (i == j && i != size/2) M[i][j] = 1;
             }
         }
@@ -72,8 +81,10 @@ public class GameDevPlayer implements IPlayer, IAuto{
     
     public int minimax(MyStatus t, int alpha, int beta, boolean maximizingPlayer, int aDepth) {
         numberOfNodesExplored++;
+        //System.out.println(aDepth);
         if (t.getMoves().isEmpty() || timeOut ||  aDepth == depth && !timerOn){
-            if (returnedDepth < aDepth) returnedDepth = aDepth;
+            if (returnedDepth< aDepth) returnedDepth = aDepth;
+            //System.out.println(aDepth);
             int h = getHeuristica(t);
             t.setHeur(h);
             return h;
@@ -119,8 +130,10 @@ public class GameDevPlayer implements IPlayer, IAuto{
                         }
                         //maxEval = Math.max(maxEval, eval);
                         alpha = Math.max(alpha, eval);
-                        if (beta <= alpha) break; // Poda alfa-beta
-                        
+                        if (beta <= alpha){
+                            //System.out.println("break");
+                            break; // Poda alfa-beta
+                        }
                     }
                 }
             }
@@ -133,7 +146,12 @@ public class GameDevPlayer implements IPlayer, IAuto{
                 t3.currentHash = zh.updateHash(t3.currentHash, bestMov.x, bestMov.y, pos, t3.getPos(bestMov)+1); /////?????????
                 HTable.put(t3.currentHash, t3);
             }
-            
+            /*
+            if (maxEval >= -10 && maxEval <= 10){
+            System.out.println(bestMov);
+            System.out.println(maxEval);
+            }
+            */
             return maxEval;
         } else { // Si és el torn del jugador minimitzador
             int minEval = Integer.MAX_VALUE;
@@ -170,8 +188,10 @@ public class GameDevPlayer implements IPlayer, IAuto{
                         
                         //minEval = Math.min(minEval, eval);
                         beta = Math.min(beta, eval);
-                        if (beta <= alpha) break;
-                        // Poda alfa-beta
+                        if (beta <= alpha){
+                            //System.out.println("break");
+                            break;
+                        } // Poda alfa-beta
                     }
                 }
             }
@@ -219,13 +239,8 @@ public class GameDevPlayer implements IPlayer, IAuto{
                     ms.placeStone(c);
                     ms.currentHash = zh.updateHash(currentHash, i, j, 0+1, ms.getPos(i, j)+1);
                     
-                    int v = minimax(ms, Integer.MIN_VALUE, Integer.MAX_VALUE, false, 0);// 
-                    if (ms.getPos(i,j) == 1){
-                        v+=weightMatrix[i][j];
-                    }
-                    else if (ms.getPos(i,j) == -1){
-                        v+=weightMatrix[j][i];
-                    }
+                    int v = minimax(ms, Integer.MIN_VALUE, Integer.MAX_VALUE, false, 0) + weightMatrix[i][j];// 
+                    //MyStatus ms = new MyStatus(hgs.getSize(), hgs, millorValor, currentHash);
                     HTable.put(ms.currentHash, ms);
                     if (v > millorValor){
                         millorValor = v;
