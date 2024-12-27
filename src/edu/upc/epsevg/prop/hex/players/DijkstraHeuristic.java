@@ -15,6 +15,7 @@ public class DijkstraHeuristic {
 
         // La heurística será una diferencia entre el puntaje del oponente y del jugador.
         return opponentScore - playerScore;
+        //return (calculateShortestPath(t, -colorOfPlayer) - calculateShortestPath(t, colorOfPlayer));
     }
 
     private static int calculateShortestPath(HexGameStatus t, int color) {
@@ -31,20 +32,26 @@ public class DijkstraHeuristic {
         }
 
         // Agregar puntos iniciales (borde superior o izquierdo según el color)
-        for (int i = 0; i < n; i++) {
-            if (color == 1) { // Jugador conecta de arriba a abajo
+        
+        if (color == 1) { // Jugador conecta de arriba a abajo
+            for (int i = 0; i < n; i++) {
                 if (t.getPos(0, i) != -1) { // No bloqueado por el oponente
                     distances[0][i] = (t.getPos(0, i) == -1) ? 0 : 1;
                     pq.add(new PointDistance(new Point(0, i), distances[0][i]));
                 }
-            } else { // Jugador conecta de izquierda a derecha
+            }
+        } else { // Jugador conecta de izquierda a derecha
+            for (int i = 0; i < n; i++) {
                 if (t.getPos(i, 0) != 1) { // No bloqueado por el oponente
                     distances[i][0] = (t.getPos(i, 0) == 1) ? 0 : 1;
                     pq.add(new PointDistance(new Point(i, 0), distances[i][0]));
                 }
             }
         }
-
+        /*
+        Un punt per sobre del tauler que estigui conectat a tots així nomes el tirem una vegada.
+        if (0, n-1) llavors si miro la direccio 0, -1 la estic mirant per qualsevol
+        */
         // Dijkstra
         int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, 1}, {1, -1}};
         while (!pq.isEmpty()) {
@@ -53,7 +60,7 @@ public class DijkstraHeuristic {
 
             if (visited[p.x][p.y]) continue;
             visited[p.x][p.y] = true;
-
+            //Ha d'haver en algun moment un if t.getPos(i+1, j) == -1 and t.getPos(i, j+1) == -1 no pots passar
             for (int[] dir : directions) {
                 int nx = p.x + dir[0], ny = p.y + dir[1];
                 if (nx >= 0 && ny >= 0 && nx < n && ny < n && !visited[nx][ny]) {
@@ -65,7 +72,7 @@ public class DijkstraHeuristic {
                     }
                 }
             }
-        }
+        }//add out to hashtable.contains
 
         // Buscar la distancia mínima a los bordes opuestos
         int minDistance = Integer.MAX_VALUE;

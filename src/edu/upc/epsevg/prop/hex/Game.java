@@ -25,8 +25,8 @@ public class Game {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                int boardSize = 7;
-                IPlayer player1 = new RandomPlayer("SISI");
+                int boardSize = 11;
+                IPlayer player1 = new H_E_X_Player(2/*GB*/);
                 
                 IPlayer player2 = new GameDevPlayer("GameDev", 4, true, boardSize);
                         //H_E_X_Player(2/*GB*/);

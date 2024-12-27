@@ -12,6 +12,10 @@ import edu.upc.epsevg.prop.hex.PlayerMove;
 import edu.upc.epsevg.prop.hex.SearchType;
 import edu.upc.epsevg.prop.hex.ZobristHashing;
 import java.awt.Point;
+//treure aquests 3 només son per probes
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Hashtable;
 
 /**
@@ -45,13 +49,24 @@ public class GameDevPlayer implements IPlayer, IAuto{
         for (int i = 0; i< size; i++){
             for(int j = 0; j < size; j++){
                 M[i][j] = (size/(Math.abs(i-size/2)+ Math.abs(j-size/2)+1));
-                //System.out.println(M[i][j]);
+                if(i != size/2 && j == size/2) M[i][j] = 1;
+                //if (i == j && i != size/2) M[i][j] = 1;
             }
-            //System.out.println(" ");
+        }
+        /*
+        M[(size/2)-1][(size/2)] = M[(size/2)-2][(size/2)];
+        M[(size/2)+1][(size/2)] = M[(size/2)+2][(size/2)];
+*/        
+        for (int i = 0; i< size; i++){
+            for(int j = 0; j < size; j++){
+                System.out.print(M[i][j]+ " ");
+            }
+            System.out.println();
         }
         weightMatrix = M;
         
     }
+    //S'ha de tenir en compte de que la matriu s'agafa al reves.
     
     public int minimax(MyStatus t, int alpha, int beta, boolean maximizingPlayer, int aDepth) {
         numberOfNodesExplored++;
@@ -216,12 +231,28 @@ public class GameDevPlayer implements IPlayer, IAuto{
                 }
             }
         }
-        System.out.println(returnedDepth);
+        //System.out.println(returnedDepth);
+        
+            HexGameStatus t = new HexGameStatus(hgs);
+            t.placeStone(millorMoviment);
+        if (t.isGameOver()){
+            writeSolutionToFile(t);
+        }
         return new PlayerMove(millorMoviment, numberOfNodesExplored, returnedDepth, SearchType.MINIMAX);
         
     }
+    public void writeSolutionToFile(HexGameStatus hgs) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("D:\\UNI\\PROP\\Hex\\solucio.txt", true))) {
+            writer.write(hgs.toString());
+            writer.newLine(); // Nova línia per cada punt
+            writer.write(hgs.GetWinner().name());// Escrivim la coordenada en format "x,y"
+            writer.newLine(); // Nova línia per cada punt
+        } catch (IOException e) {
+            e.printStackTrace(); // Gestionem l'excepció
+        }
+    }
     
-
+    
     @Override
     public void timeout() {
         if(timerOn){
@@ -237,5 +268,5 @@ public class GameDevPlayer implements IPlayer, IAuto{
     private int getHeuristica(HexGameStatus t) {
        return DijkstraHeuristic.calculateHeuristic(t, colorOfPlayer);
     }
-    
+    //Moltisim millor desde que he posat *2
 }
