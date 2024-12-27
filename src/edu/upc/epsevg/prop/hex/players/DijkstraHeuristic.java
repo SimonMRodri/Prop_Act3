@@ -65,7 +65,9 @@ public class DijkstraHeuristic {
                 int nx = p.x + dir[0], ny = p.y + dir[1];
                 if (nx >= 0 && ny >= 0 && nx < n && ny < n && !visited[nx][ny]) {
                     int cost = (t.getPos(nx, ny) == color) ? 0 : 1;
-                    if (t.getPos(nx, ny) == -color) continue; // Bloqueado por el oponente
+                    if (t.getPos(nx, ny) == -color){
+                        continue; // Bloqueado por el oponente
+                    } 
                     if (distances[p.x][p.y] + cost < distances[nx][ny]) {
                         distances[nx][ny] = distances[p.x][p.y] + cost;
                         pq.add(new PointDistance(new Point(nx, ny), distances[nx][ny]));
