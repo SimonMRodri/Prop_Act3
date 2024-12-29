@@ -26,9 +26,11 @@ public class Game {
             @Override
             public void run() {
                 int boardSize = 11;
-                IPlayer player1 = new H_E_X_Player(2/*GB*/);
+                int numberPlayer = 1;
+                IPlayer player1 = new GameDevPlayer("GameDev", 4, true, boardSize, numberPlayer);
+
+                IPlayer player2 = new H_E_X_Player(2/*GB*/);
                 
-                IPlayer player2 = new GameDevPlayer("GameDev", 4, true, boardSize);
                         //H_E_X_Player(2/*GB*/);
                         //HumanPlayer("Human");
                         //RandomPlayer("SISI");

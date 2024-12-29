@@ -12,15 +12,11 @@ import edu.upc.epsevg.prop.hex.PlayerMove;
 import edu.upc.epsevg.prop.hex.SearchType;
 import edu.upc.epsevg.prop.hex.ZobristHashing;
 import java.awt.Point;
-//treure aquests 3 només son per probes
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Hashtable;
 
 /**
- *
- * @author danip
+ * Implementació del jugador GameDevPlayer
+ * @author DanielFiSimonM
  */
 public class GameDevPlayer implements IPlayer, IAuto{
     private String name;
@@ -35,39 +31,45 @@ public class GameDevPlayer implements IPlayer, IAuto{
     private long bestHash;
     private int[][] weightMatrix;
     
-    public GameDevPlayer(String nm, int depthMax, boolean modePlayer, int BS){
+    
+    /**
+     * Constructora del jugador
+     * 
+     * @param nm El nom del jugador creat
+     * @param depthMax La profunditat màxima a la que arribarà el minimax
+     * @param modePlayer Indicador per saber si va per TimeOut o per IDS
+     * @param BS Grandària del tauler
+     * @param pColor Indica si es el jugador 1 o el 2
+     */
+    public GameDevPlayer(String nm, int depthMax, boolean modePlayer, int BS, int pColor){
         this.HTable = new Hashtable<>();
         name = nm;
         depth = depthMax;
         timerOn = modePlayer;
         zh = new ZobristHashing(BS, 3); 
-        int c = this.colorOfPlayer;
-        createWeightMatrix(BS, c);
+        createWeightMatrix(BS, pColor);
     }
-    //ZobristTable es fa una i punt.
+    
+    /**
+     * Funció per generar una matriu de pes per donar prioritat a les caselles
+     * centrals del tauler.
+     * 
+     * @param size Grandària del tauler
+     * @param c Color del jugador propi
+     */
     public void createWeightMatrix(int size, int c){
         int[][] M = new int[size][size];
         for (int i = 0; i< size; i++){
             for(int j = 0; j < size; j++){
-                
                 M[i][j] = (size/(Math.abs(i-size/2)+ Math.abs(j-size/2)+1));
-                if(i != size/2 && j == size/2) M[i][j] = 1;
-                /*
-                if (c == 1){
-                    if(i != size/2 && j == size/2) M[i][j] = 1;   
+                if(c != 1){
+                    if(i != size/2 && j == size/2) M[i][j] = 1;
                 }
                 else{
-                    if(i != size/2 && j == size/2) M[j][i] = 1;
+                    if(i == size/2 && j != size/2) M[i][j] = 1;
                 }
-                */
-                //if(i != size/2 && j == size/2) M[i][j] = 1;
-                //if (i == j && i != size/2) M[i][j] = 1;
             }
-        }
-        /*
-        M[(size/2)-1][(size/2)] = M[(size/2)-2][(size/2)];
-        M[(size/2)+1][(size/2)] = M[(size/2)+2][(size/2)];
-        */        
+        }      
         for (int i = 0; i< size; i++){
             for(int j = 0; j < size; j++){
                 System.out.print(M[i][j]+ " ");
@@ -77,33 +79,28 @@ public class GameDevPlayer implements IPlayer, IAuto{
         weightMatrix = M;
         
     }
-    //S'ha de tenir en compte de que la matriu s'agafa al reves.
+
     
+    /**
+     * Funció MiniMax per trobar la jugada més adecuada
+     * 
+     * @param t Tauler actual
+     * @param alpha Variable alpha per al MiniMax
+     * @param beta Variable beta per al MiniMax
+     * @param maximizingPlayer Indicador per saber si estem maximitzant o minimitzant el jugador.
+     * @param aDepth Profunditat actual a l'arbre
+     * @return Retorna el valor del millor moviment
+     */
     public int minimax(MyStatus t, int alpha, int beta, boolean maximizingPlayer, int aDepth) {
         numberOfNodesExplored++;
-        //System.out.println(aDepth);
         if (t.getMoves().isEmpty() || timeOut ||  aDepth == depth && !timerOn){
             if (returnedDepth< aDepth) returnedDepth = aDepth;
-            //System.out.println(aDepth);
             int h = getHeuristica(t);
             t.setHeur(h);
             return h;
-        } 
-        
-        
-        
-        if (maximizingPlayer) { // Si és el torn del jugador maximitzador
+        }              
+        if (maximizingPlayer) { 
             int maxEval = Integer.MIN_VALUE;
-            /*
-            Posarlo aqui es com fer un recursive leaf
-            Crec que he de mirar-ho abans la crida recursiva amb el fill generat.
-            if (HTable.containsKey(t.currentHash)){
-                return HTable.get(t.currentHash).getHeur();
-            }
-            */
-                        // Si segueix sense funcionar placeStone tornar a posar el 
-                        // MyStatus t2 = new MyStatus(t); dins del bucle.
-                        // O posar un check perque no posi fora dels limits.
             Point bestMov = new Point(-1, -1);
             for (int j = t.getSize()-1; j >= 0; j--) {
                 for (int k = t.getSize()-1; k>=0; k--){
@@ -114,25 +111,18 @@ public class GameDevPlayer implements IPlayer, IAuto{
                         if (HTable.containsKey(auxHash)){
                             returnedDepth = aDepth;
                             return HTable.get(auxHash).getHeur();
-                            //si ja ha vist el tauler retrona la seva heuristica que es de les millors
                         }
                         else{
                             t2.currentHash = auxHash;
                         }
-
-                        //OldState no sera sempre 1 ja que posem una pedra en una cella buida?
-                        //MyStatus aux = HTable.get(t2.getCurrentHash(); //null
-                        //HTable.put(zh.updateHash(t2.currentHash, j, k, 1, colorOfPlayer+1), colorOfPlayer+1), t2);//ni puta idea pero maybe te sentit???????
                         int eval = minimax(t2, alpha, beta, false, aDepth+1) ;
                         if (eval > maxEval){
                             maxEval = eval;
                             bestMov = new Point(j,k); 
                         }
-                        //maxEval = Math.max(maxEval, eval);
                         alpha = Math.max(alpha, eval);
                         if (beta <= alpha){
-                            //System.out.println("break");
-                            break; // Poda alfa-beta
+                            break;
                         }
                     }
                 }
@@ -143,33 +133,18 @@ public class GameDevPlayer implements IPlayer, IAuto{
                 t3.setHeur(maxEval);
                 
                 t3.placeStone(bestMov);
-                t3.currentHash = zh.updateHash(t3.currentHash, bestMov.x, bestMov.y, pos, t3.getPos(bestMov)+1); /////?????????
+                t3.currentHash = zh.updateHash(t3.currentHash, bestMov.x, bestMov.y, pos, t3.getPos(bestMov)+1); 
                 HTable.put(t3.currentHash, t3);
             }
-            /*
-            if (maxEval >= -10 && maxEval <= 10){
-            System.out.println(bestMov);
-            System.out.println(maxEval);
-            }
-            */
             return maxEval;
-        } else { // Si és el torn del jugador minimitzador
+        } else {
             int minEval = Integer.MAX_VALUE;
-            /*
-            MyStatus t2 = new MyStatus(t);
-            long cHash = t2.currentHash;
-            HTable.put(cHash, t2); 
-            // La posem de forma temporal per poder torna a agafar el tauler 
-            // sense crear una copia cada per cada iteració del bucle.
-            // Al acabar el bucle la esborrem.
-            int newState = t2.getCurrentPlayerColor()+1;
-            */
             Point bestMov = new Point(-1, -1); 
             for (int j = t.getSize()-1; j >= 0; j--) {
                 for (int k = t.getSize()-1; k>=0; k--){
                     MyStatus t2 = new MyStatus(t);
                     if (t2.getPos(j, k) == 0) {
-                        t2.placeStone(new Point(j, k)); //potser no fa falta el place stone????????? bueno si que fara falta perque no tenim res guardat
+                        t2.placeStone(new Point(j, k)); 
                         long auxHash = zh.updateHash(t2.currentHash, j, k, 1, t2.getPos(j,k)+1);
                         if (HTable.containsKey(auxHash)){
                             returnedDepth = aDepth;
@@ -178,25 +153,19 @@ public class GameDevPlayer implements IPlayer, IAuto{
                         else{
                             t2.currentHash = auxHash;
                         }
-
-                        int eval = minimax(t2, alpha, beta, true, aDepth+1);
-                        
+                        int eval = minimax(t2, alpha, beta, true, aDepth+1);                        
                         if (eval<minEval){
                             minEval = eval;
                             bestMov = new Point(j,k);
-                        }
-                        
-                        //minEval = Math.min(minEval, eval);
+                        }                        
                         beta = Math.min(beta, eval);
                         if (beta <= alpha){
-                            //System.out.println("break");
                             break;
-                        } // Poda alfa-beta
+                        } 
                     }
                 }
             }
-           
-            
+                       
             if (bestMov != new Point(-1, -1)){
                 MyStatus t3 = new MyStatus(t);
                 int pos = t3.getPos(bestMov)+1;
@@ -204,20 +173,23 @@ public class GameDevPlayer implements IPlayer, IAuto{
                 t3.placeStone(bestMov);
                 t3.currentHash = zh.updateHash(t3.currentHash, bestMov.x, bestMov.y, pos, t3.getPos(bestMov)+1);
                 HTable.put(t3.currentHash, t3);
-            }
-            
+            }            
             return minEval;
         }
     }
         
+    /**
+     * Busca el millor moviment possible amb el tauler actual i actualitza la taula hash
+     * 
+     * @param hgs El tauler actual
+     * @return El millor moviment trobat
+     */
     @Override
     public PlayerMove move(HexGameStatus hgs) {
         
         colorOfPlayer = hgs.getCurrentPlayerColor();
         timeOut = false;
         int size = hgs.getSize();
-        
-        //if(!HTable.isEmpty()) hgs = HTable.get(bestHash);
 
         int[][] board = new int[size][size];
         for (int x = 0; x < size; x++) {
@@ -234,13 +206,12 @@ public class GameDevPlayer implements IPlayer, IAuto{
             for(int j = 0; j < hgs.getSize(); j++){
                 if(hgs.getPos(i, j) == 0){
                     
-                    MyStatus ms = new MyStatus(hgs.getSize(), hgs, millorValor, currentHash);
+                    MyStatus ms = new MyStatus(hgs, millorValor, currentHash);
                     Point c = new Point(i,j);
                     ms.placeStone(c);
                     ms.currentHash = zh.updateHash(currentHash, i, j, 0+1, ms.getPos(i, j)+1);
                     
-                    int v = minimax(ms, Integer.MIN_VALUE, Integer.MAX_VALUE, false, 0) + weightMatrix[i][j];// 
-                    //MyStatus ms = new MyStatus(hgs.getSize(), hgs, millorValor, currentHash);
+                    int v = minimax(ms, Integer.MIN_VALUE, Integer.MAX_VALUE, false, 0) + weightMatrix[i][j];
                     HTable.put(ms.currentHash, ms);
                     if (v > millorValor){
                         millorValor = v;
@@ -249,29 +220,16 @@ public class GameDevPlayer implements IPlayer, IAuto{
                     }
                 }
             }
-        }
-        System.out.println(returnedDepth);
-        
-            HexGameStatus t = new HexGameStatus(hgs);
-            t.placeStone(millorMoviment);
-        if (t.isGameOver()){
-            writeSolutionToFile(t);
-        }
+        }        
+        HexGameStatus t = new HexGameStatus(hgs);
+        t.placeStone(millorMoviment);
         return new PlayerMove(millorMoviment, numberOfNodesExplored, returnedDepth, SearchType.MINIMAX);
-        
-    }
-    public void writeSolutionToFile(HexGameStatus hgs) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("D:\\UNI\\PROP\\Hex\\solucio.txt", true))) {
-            writer.write(hgs.toString());
-            writer.newLine(); // Nova línia per cada punt
-            writer.write(hgs.GetWinner().name());// Escrivim la coordenada en format "x,y"
-            writer.newLine(); // Nova línia per cada punt
-        } catch (IOException e) {
-            e.printStackTrace(); // Gestionem l'excepció
-        }
     }
     
     
+    /**
+     * Aquesta funció s'activa quan s'acaba el temps del jugador per escollir el moviment
+     */
     @Override
     public void timeout() {
         if(timerOn){
@@ -279,12 +237,23 @@ public class GameDevPlayer implements IPlayer, IAuto{
         }
     }
 
+    /**
+     * Funció per a obtenir el nom del jugador
+     * 
+     * @return un string amb el nom del jugador
+     */
     @Override
     public String getName() {
         return name;
     }
 
-    private int getHeuristica(HexGameStatus t) {
+    /**
+     * Funció per a obtenir la heurística donat un tauler
+     * 
+     * @param t El tauler del que es vol saber l'heurística
+     * @return L'heurística obtinguda
+     */
+    public int getHeuristica(HexGameStatus t) {
        return DijkstraHeuristic.calculateHeuristic(t, colorOfPlayer);
     }
     
